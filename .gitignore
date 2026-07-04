@@ -1,0 +1,4 @@
+.DS_Store
+.venv/
+#local_database.db
+secrets.env
