@@ -1,4 +1,4 @@
 .DS_Store
 .venv/
-#local_database.db
+local_database.db
 secrets.env
