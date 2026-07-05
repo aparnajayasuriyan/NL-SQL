@@ -14,6 +14,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+st.markdown(
+    """
+    <div style="text-align:center; padding: 0.5rem 0 0.25rem 0;">
+        <h1 style="margin:0; font-size:3rem; font-weight:800; color:#1F4E79; letter-spacing:0.04em;">DataBridge</h1>
+        <p style="margin:0.35rem 0 0 0; font-size:1.15rem; color:#4B5563; font-weight:600;">
+            Democratizing Enterprise Data through Intelligent Natural Language Parsing
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Premium dark-blue slate custom styling injection
 st.markdown("""
     <style>
@@ -68,11 +80,10 @@ if "ollama_model" not in st.session_state:
 
 
 def create_mock_database():
-    """Generates an in-memory SQLite database populated with transactional e-commerce tables."""
+    """Generates an in-memory SQLite database populated with larger synthetic e-commerce tables."""
     conn = sqlite3.connect(":memory:", check_same_thread=False)
     cursor = conn.cursor()
-    
-    # 1. Create Tables
+
     cursor.execute("""
         CREATE TABLE customers (
             customer_id INTEGER PRIMARY KEY,
@@ -82,7 +93,7 @@ def create_mock_database():
             loyalty_tier TEXT
         )
     """)
-    
+
     cursor.execute("""
         CREATE TABLE products (
             product_id INTEGER PRIMARY KEY,
@@ -92,7 +103,7 @@ def create_mock_database():
             stock_quantity INTEGER
         )
     """)
-    
+
     cursor.execute("""
         CREATE TABLE orders (
             order_id INTEGER PRIMARY KEY,
@@ -103,32 +114,84 @@ def create_mock_database():
             FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
         )
     """)
-    
-    # 2. Insert Mock transactional data
-    customers_data = [
-        (101, 'Sarah Jenkins', 'sarah.j@outlook.com', '2025-01-12', 'Gold'),
-        (102, 'David Chen', 'dchen@techcorp.com', '2025-03-05', 'Bronze'),
-        (103, 'Elena Rostova', 'elena.r@agency.net', '2024-11-20', 'Platinum'),
-        (104, 'Marcus Aurelius', 'marcus.a@rome.it', '2026-02-15', 'Regular')
+
+    loyalty_tiers = ["Bronze", "Silver", "Gold", "Platinum", "Regular"]
+    first_names = [
+        "Ava", "Liam", "Maya", "Noah", "Sophia", "Ethan", "Olivia", "Lucas", "Emma", "Mason",
+        "Isabella", "James", "Charlotte", "Benjamin", "Amelia", "Elijah", "Harper", "Alexander", "Evelyn", "Henry",
+        "Abigail", "Michael", "Emily", "Daniel", "Elizabeth", "Matthew", "Sofia", "Joseph", "Ella", "David",
+        "Scarlett", "Samuel", "Grace", "Carter", "Chloe", "Owen", "Victoria", "Wyatt", "Riley", "John",
+        "Aria", "Jack", "Aurora", "Leo", "Nora", "Luke", "Hazel", "Jayden", "Lily", "Dylan",
+        "Zoe", "Isaac", "Stella", "Gabriel", "Hannah", "Julian", "Lucy", "Mateo", "Layla", "Anthony",
+        "Paisley", "Hudson", "Naomi", "Nathan", "Elena", "Christopher", "Aubrey", "Andrew", "Claire", "Joshua",
+        "Skylar", "Isaiah", "Willow", "Ryan", "Mila", "Nathaniel", "Bella", "Caleb", "Luna", "Adrian",
+        "Savannah", "Thomas", "Camila", "Aaron", "Violet", "Isaac", "Ruby", "Charles", "Audrey", "Jonathan",
+        "Penelope", "Justin", "Brooklyn", "Jose", "Leah", "Logan", "Alice", "Hunter", "Eva", "Christian"
     ]
+    last_names = [
+        "Anderson", "Bennett", "Carter", "Davis", "Edwards", "Foster", "Garcia", "Hughes", "Ingram", "Johnson",
+        "Keller", "Lopez", "Mitchell", "Nelson", "Owens", "Parker", "Quinn", "Roberts", "Simmons", "Turner",
+        "Underwood", "Vega", "Wright", "Xavier", "Young", "Zhang", "Adams", "Brooks", "Coleman", "Duncan",
+        "Ellis", "Fisher", "Griffin", "Harrison", "Ibarra", "Jackson", "Kim", "Liu", "Morgan", "Nguyen",
+        "Ortiz", "Perry", "Reyes", "Shaw", "Taylor", "Upton", "Vargas", "Walters", "Xu", "Yates", "Zimmerman"
+    ]
+    customers_data = []
+    for customer_id in range(1, 121):
+        signup_month = ((customer_id - 1) % 12) + 1
+        signup_day = ((customer_id - 1) % 28) + 1
+        tier = loyalty_tiers[(customer_id - 1) % len(loyalty_tiers)]
+        first_name = first_names[(customer_id - 1) % len(first_names)]
+        last_name = last_names[(customer_id - 1) % len(last_names)]
+        customers_data.append(
+            (
+                customer_id,
+                f"{first_name} {last_name}",
+                f"{first_name.lower()}.{last_name.lower()}{customer_id % 100}@example.com",
+                f"2025-{signup_month:02d}-{signup_day:02d}",
+                tier,
+            )
+        )
     cursor.executemany("INSERT INTO customers VALUES (?, ?, ?, ?, ?)", customers_data)
-    
-    products_data = [
-        (201, 'UltraWide Cinematic Monitor', 'Electronics', 649.99, 42),
-        (202, 'Mechanical Keyboard (Brown Switches)', 'Electronics', 119.50, 150),
-        (203, 'Ergonomic Leather Desk Chair', 'Furniture', 329.00, 15),
-        (204, 'Noise Cancelling Headphones V3', 'Electronics', 249.99, 85)
+
+    categories = ["Electronics", "Furniture", "Home", "Accessories", "Office"]
+    product_prefixes = [
+        "Aurora", "Nimbus", "Vertex", "Lumen", "Crest", "Harbor", "Pioneer", "Northstar", "Horizon", "Summit",
+        "Atlas", "Nova", "Orbit", "Terra", "Echo", "Flux", "Pine", "Cedar", "Stone", "Breeze"
     ]
+    product_suffixes = [
+        "Lite", "Pro", "Max", "Ultra", "Plus", "X", "Elite", "Studio", "Mini", "Flex"
+    ]
+    products_data = []
+    for product_id in range(1, 121):
+        category = categories[(product_id - 1) % len(categories)]
+        price = round(19.99 + ((product_id * 13) % 480) + (product_id % 5) * 0.5, 2)
+        stock_quantity = 10 + ((product_id * 17) % 200)
+        prefix = product_prefixes[(product_id - 1) % len(product_prefixes)]
+        suffix = product_suffixes[(product_id - 1) % len(product_suffixes)]
+        product_name = f"{prefix} {suffix}"
+        products_data.append(
+            (
+                product_id,
+                product_name,
+                category,
+                price,
+                stock_quantity,
+            )
+        )
     cursor.executemany("INSERT INTO products VALUES (?, ?, ?, ?, ?)", products_data)
-    
-    orders_data = [
-        (3001, 101, '2026-05-10', 769.49, 'Shipped'),
-        (3002, 103, '2026-06-01', 329.00, 'Delivered'),
-        (3003, 102, '2026-06-15', 119.50, 'Processing'),
-        (3004, 101, '2026-06-20', 249.99, 'Shipped')
-    ]
+
+    statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"]
+    orders_data = []
+    for order_index in range(1, 121):
+        order_id = 3000 + order_index
+        customer_id = ((order_index - 1) % 120) + 1
+        order_month = ((order_index - 1) % 12) + 1
+        order_day = ((order_index - 1) % 28) + 1
+        total_amount = round(49.99 + ((order_index * 29) % 3000) + (order_index % 7) * 2.25, 2)
+        status = statuses[(order_index - 1) % len(statuses)]
+        orders_data.append((order_id, customer_id, f"2026-{order_month:02d}-{order_day:02d}", total_amount, status))
     cursor.executemany("INSERT INTO orders VALUES (?, ?, ?, ?, ?)", orders_data)
-    
+
     conn.commit()
     return conn
 
