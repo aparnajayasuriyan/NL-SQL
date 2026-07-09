@@ -1,4 +1,4 @@
-# NL-SQL
+# DataBridge - Making data accessible to everyone
 
 A Streamlit-based AI-powered SQL analytics assistant that uses Ollama to translate natural language questions into SQLite queries.
 

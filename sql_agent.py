@@ -19,7 +19,7 @@ st.markdown(
     <div style="text-align:center; padding: 0.5rem 0 0.25rem 0;">
         <h1 style="margin:0; font-size:3rem; font-weight:800; color:#1F4E79; letter-spacing:0.04em;">DataBridge</h1>
         <p style="margin:0.35rem 0 0 0; font-size:1.15rem; color:#4B5563; font-weight:600;">
-            Democratizing Enterprise Data through Intelligent Natural Language Parsing
+            Making data accessible to everyone through Intelligent Natural Language Parsing
         </p>
     </div>
     """,
